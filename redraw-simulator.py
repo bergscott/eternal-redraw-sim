@@ -17,7 +17,7 @@ class Player:
 
 	def newHand(self, handSize=STARTING_HAND_SIZE):
 		self.deck.reset()
-		self.hand = self.deck.drawCards(handSize)
+		self.hand = Hand(self.deck.drawCards(handSize))
 
 	def draw(self, minPower, maxPower, handSize=STARTING_HAND_SIZE):
 		self.newHand(handSize)
@@ -34,7 +34,7 @@ class Player:
 		self.reDraw(STARTING_HAND_SIZE-1)
 
 	def drawCard(self):
-		self.hand.drawCard(self.deck.drawCard())
+		self.hand.addCard(self.deck.drawCard())
 
 	def cardsInHand(self):
 		return len(self.hand)
@@ -71,6 +71,9 @@ class Hand:
 
 	def addCard(self, card):
 		self.cards += [card]
+
+	def addCards(self, listOfCards):
+		self.cards += listOfCards
 
 	def size(self):
 		return len(self.cards)
@@ -110,7 +113,7 @@ class EternalDeck:
 	def drawCards(self, nCards):
 		drawnCards = self.deck[0:nCards]
 		del self.deck[0:nCards]
-		return Hand(drawnCards)
+		return drawnCards
 
 	def __str__(self):
 		printString = ""
@@ -133,27 +136,25 @@ def runTrial(player, gambit=True):
 	otherwise False
 	"""
 	player.initialDraw()
-	#print "Opening Hand: " + str(player.hand)
 	if player.hasCard(KEY_CARD):
 		return True
 	else:
 		player.reDraw()
-		#print "Redraw Hand: " + str(player.hand)
 		if player.hasCard(KEY_CARD):
 			return True
 		elif gambit:
 			player.desperateGambit()
-			#print "Desperate Gambit Hand: " + str(player.hand)
 			return player.hasCard(KEY_CARD)
 		else:
 			return False
 
-def runTrials(player, gambit=True, nTrials=10000):
+def runTrials(nKeyCards, nPower, gambit=True, nTrials=10000):
 	"""
 	returns number of times Player had key-card in opening hand, redraw,
-	 or desperate gambit (if gambit=True) in nTrials
+	or desperate gambit (if gambit=True) in nTrials
 	"""
 	successCount = 0
+	player = Player(EternalDeck(nKeyCards, nPower))
 	for trial in xrange(nTrials):
 		if runTrial(player, gambit):
 			successCount += 1
@@ -167,7 +168,7 @@ def runTrialSet(minKeyCards, maxKeyCards, nPower, gambit=True, nTrials=10000, pr
 	"""
 	results = []
 	for nKeyCards in xrange(minKeyCards, maxKeyCards+1):
-		successes = runTrials(Player(EternalDeck(nKeyCards, nPower)), gambit, nTrials)
+		successes = runTrials(nKeyCards, nPower, gambit, nTrials)
 		estimatedProbability = round(float(successes) / nTrials, precision)
 		results.append([nKeyCards, estimatedProbability])
 	return results
@@ -195,16 +196,18 @@ def main():
 
 	# EDIT THESE PARAMETERS AS DESIRED
 	nTrials = 10000
-	nPower = 32
+	nPower = 25
 	minKeyCards = 1
 	maxKeyCards = 20
 	gambit = False
 
 	results = runTrialSet(minKeyCards, maxKeyCards, nPower, gambit, nTrials)
 	printResults(results, nPower)
-	createResultsCSV(results, "results.csv")
 
-	# CODE BELOW FOR RUNNING TRIALS FOR A SPECIFIC NUMBER OF KEY CARDS
+	# UNCOMMENT LINE BELOW TO OUTPUT A CSV FILE OF RESULTS
+	# createResultsCSV(results, "results.csv")
+
+	# CODE BELOW FOR RUNNING TRIALS FOR A SPECIFIC NUMBER OF KEY CARDS (INSTEAD OF A RANGE)
 	# nKeyCards = 11
 	# testPlayer = Player(EternalDeck(nKeyCards, nPower))
 	# successes = runTrials(testPlayer, gambit, nTrials)
