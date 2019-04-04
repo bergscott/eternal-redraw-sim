@@ -215,4 +215,6 @@ def main():
 	# print str(successes) + " out of " + str(nTrials) + " trials were successful. (" + \
 	# 	str(percentSuccess) + "%)"
 
+	raw_input("Press ENTER key to exit")
+
 main()
