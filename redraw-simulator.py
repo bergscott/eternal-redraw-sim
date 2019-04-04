@@ -18,7 +18,6 @@ class Player:
 	def newHand(self, handSize=STARTING_HAND_SIZE):
 		self.deck.reset()
 		self.hand = self.deck.drawCards(handSize)
-		#print self.hand.size()
 
 	def draw(self, minPower, maxPower, handSize=STARTING_HAND_SIZE):
 		self.newHand(handSize)
@@ -130,7 +129,7 @@ class EternalDeck:
 
 def runTrial(player, gambit=True):
 	"""
-	returns True if player finds key-card in opening hand, redraw, or desperate gambit redraw
+	returns True if player finds key-card in opening hand, redraw, or desperate gambit redraw (if gambit=True)
 	otherwise False
 	"""
 	player.initialDraw()
@@ -149,44 +148,68 @@ def runTrial(player, gambit=True):
 		else:
 			return False
 
-def runTrials(player, gambit=True, nTrials=100):
+def runTrials(player, gambit=True, nTrials=10000):
+	"""
+	returns number of times Player had key-card in opening hand, redraw,
+	 or desperate gambit (if gambit=True) in nTrials
+	"""
 	successCount = 0
 	for trial in xrange(nTrials):
 		if runTrial(player, gambit):
 			successCount += 1
-
 	return successCount
 
-def runTrialSet(minKeyCards, maxKeyCards, nPower, gambit=True, nTrials=1000):
-	results = {}
-	for t in xrange(minKeyCards, maxKeyCards+1):
-		successes = runTrials(Player(EternalDeck(t, nPower)), gambit, nTrials)
-		estimatedProbability = round(float(successes) / nTrials, 4)
-		results[t] = estimatedProbability
+def runTrialSet(minKeyCards, maxKeyCards, nPower, gambit=True, nTrials=10000, precision=4):
+	"""
+	Runs trials for all numbers of key cards between minKeyCards and maxKeyCards and
+	returns a list of lists in the format of [nKeyCards, estimated probability of finding the key card]
+	estimated probabilites are floats 0 <= p <= 1 rounded to precision digits
+	"""
+	results = []
+	for nKeyCards in xrange(minKeyCards, maxKeyCards+1):
+		successes = runTrials(Player(EternalDeck(nKeyCards, nPower)), gambit, nTrials)
+		estimatedProbability = round(float(successes) / nTrials, precision)
+		results.append([nKeyCards, estimatedProbability])
 	return results
+
+def createResultsCSV(results, filename):
+	"""
+	Outputs the output from runTrialSet to a CSV file in the script's directory.
+	CAUTION: WILL OVERWRITE ANY EXISTING FILE IN DIRECTORY WITH SAME NAME AS "filename"
+	"""
+	with open(filename, 'wb') as outputFile:
+		writer = csv.writer(outputFile)
+		writer.writerow(["nKeyCards", "Est. Probability"])
+		for result in results:
+			writer.writerow(result)
+
+def printResults(results, nPower):
+	"""
+	prints output from runTrialSet to console in a readable form
+	"""
+	print "With " + str(nPower) + " power:"	
+	for result in results:
+		print str(result[0]) + " Key Cards: \t" + str(result[1]*100) + "% success"
 
 def main():
 
-	# testPlayer = Player(EternalDeck(1, 25))
-	# successes = runTrials(testPlayer, False, nTrials)
-	# percentSuccess = round(float(successes) / nTrials * 100, 2)
-	# print str(successes) + " out of " + str(nTrials) + " trials were successful. (" + \
-	# 	str(percentSuccess) + "%)"
-
-	nTrials = 100000
+	# EDIT THESE PARAMETERS AS DESIRED
+	nTrials = 10000
 	nPower = 32
 	minKeyCards = 1
 	maxKeyCards = 20
-	gambit = True
+	gambit = False
 
 	results = runTrialSet(minKeyCards, maxKeyCards, nPower, gambit, nTrials)
-	print "With " + str(nPower) + " power:"
-	for nKeyCards in results:
-		print str(nKeyCards) + " Key Cards: \t" + str(results[nKeyCards]*100) + "% success"
-	with open('results.csv', 'wb') as outputFile:
-		writer = csv.writer(outputFile)
-		writer.writerow(["nKeyCards", "Est. Probability"])
-		for nKeyCards in results:
-			writer.writerow([nKeyCards, results[nKeyCards]])
+	printResults(results, nPower)
+	createResultsCSV(results, "results.csv")
+
+	# CODE BELOW FOR RUNNING TRIALS FOR A SPECIFIC NUMBER OF KEY CARDS
+	# nKeyCards = 11
+	# testPlayer = Player(EternalDeck(nKeyCards, nPower))
+	# successes = runTrials(testPlayer, gambit, nTrials)
+	# percentSuccess = round(float(successes) / nTrials * 100, 2)
+	# print str(successes) + " out of " + str(nTrials) + " trials were successful. (" + \
+	# 	str(percentSuccess) + "%)"
 
 main()
