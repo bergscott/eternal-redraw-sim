@@ -209,12 +209,9 @@ def main():
 
 	# CODE BELOW FOR RUNNING TRIALS FOR A SPECIFIC NUMBER OF KEY CARDS (INSTEAD OF A RANGE)
 	# nKeyCards = 11
-	# testPlayer = Player(EternalDeck(nKeyCards, nPower))
-	# successes = runTrials(testPlayer, gambit, nTrials)
+	# successes = runTrials(nKeyCards, nPower, gambit, nTrials)
 	# percentSuccess = round(float(successes) / nTrials * 100, 2)
 	# print str(successes) + " out of " + str(nTrials) + " trials were successful. (" + \
 	# 	str(percentSuccess) + "%)"
-
-	raw_input("Press ENTER key to exit")
 
 main()
