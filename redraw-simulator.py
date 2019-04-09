@@ -196,7 +196,7 @@ def printResults(results, nPower):
 def main():
 
 	# EDIT THESE PARAMETERS AS DESIRED
-	nTrials = 100000
+	nTrials = 10000
 	nPower = 25
 	minKeyCards = 1
 	maxKeyCards = 20
@@ -206,7 +206,7 @@ def main():
 	printResults(results, nPower)
 
 	# UNCOMMENT LINE BELOW TO OUTPUT A CSV FILE OF RESULTS
-	createResultsCSV(results, "results.csv")
+	# createResultsCSV(results, "results.csv")
 
 	# CODE BELOW FOR RUNNING TRIALS FOR A SPECIFIC NUMBER OF KEY CARDS (INSTEAD OF A RANGE)
 	# nKeyCards = 11
