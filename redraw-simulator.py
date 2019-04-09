@@ -28,7 +28,8 @@ class Player:
 		self.draw(MIN_INITIAL_POWER, MAX_INITIAL_POWER, handSize)
 
 	def reDraw(self, handSize=STARTING_HAND_SIZE):
-		self.draw(MIN_REDRAW_POWER, MAX_REDRAW_POWER, handSize)
+		powerInRedraw = random.randint(MIN_REDRAW_POWER, MAX_REDRAW_POWER)
+		self.draw(powerInRedraw, powerInRedraw, handSize)
 
 	def desperateGambit(self):
 		self.reDraw(STARTING_HAND_SIZE-1)
@@ -195,7 +196,7 @@ def printResults(results, nPower):
 def main():
 
 	# EDIT THESE PARAMETERS AS DESIRED
-	nTrials = 10000
+	nTrials = 100000
 	nPower = 25
 	minKeyCards = 1
 	maxKeyCards = 20
@@ -205,7 +206,7 @@ def main():
 	printResults(results, nPower)
 
 	# UNCOMMENT LINE BELOW TO OUTPUT A CSV FILE OF RESULTS
-	# createResultsCSV(results, "results.csv")
+	createResultsCSV(results, "results.csv")
 
 	# CODE BELOW FOR RUNNING TRIALS FOR A SPECIFIC NUMBER OF KEY CARDS (INSTEAD OF A RANGE)
 	# nKeyCards = 11
